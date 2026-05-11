@@ -1,0 +1,23 @@
+name: Setup Railway CLI
+description: Install Railway CLI.
+branding:
+  icon: box
+  color: blue
+
+inputs:
+  version:
+    description: |-
+      Railway CLI version tag to install.
+
+      If omitted, the action resolves the latest release tag from the official Railway repository.
+
+      Available releases: https://github.com/railwayapp/cli/releases/
+    required: false
+
+outputs:
+  version:
+    description: Resolved Railway CLI version
+
+runs:
+  using: node24
+  main: dist/index.mjs

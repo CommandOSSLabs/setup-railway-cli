@@ -1,0 +1,70 @@
+name: Act Local Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    env:
+      RUNNER_ARCH: X64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build action
+        run: bun run build
+
+      - name: Run local action
+        id: setup-railway
+        uses: ./
+
+      - name: Verify Railway CLI
+        run: |
+          railway --version
+          test -n "${{ steps.setup-railway.outputs.version }}"
+
+  test-supported-assets:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: linux
+            arch: x64
+            target: x86_64-unknown-linux-musl
+          - os: linux
+            arch: arm64
+            target: aarch64-unknown-linux-musl
+          - os: macos
+            arch: x64
+            target: x86_64-apple-darwin
+          - os: macos
+            arch: arm64
+            target: aarch64-apple-darwin
+          - os: windows
+            arch: x64
+            target: x86_64-pc-windows-msvc
+    steps:
+      - name: Resolve latest Railway CLI version
+        id: version
+        shell: bash
+        run: |
+          version="$(node -e "fetch('https://api.github.com/repos/railwayapp/cli/releases/latest', { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'setup-railway-cli-action-test' } }).then(async (response) => { if (!response.ok) throw new Error(response.status + ' ' + response.statusText); const release = await response.json(); console.log(release.tag_name); })")"
+          test -n "$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Verify release asset exists
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TARGET: ${{ matrix.target }}
+        shell: bash
+        run: |
+          asset_url="https://github.com/railwayapp/cli/releases/download/${VERSION}/railway-${VERSION}-${TARGET}.tar.gz"
+          echo "Checking ${asset_url}"
+          curl --fail --location --head --silent --show-error "$asset_url" > /dev/null
