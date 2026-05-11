@@ -1,4 +1,4 @@
-name: Setup Railway CLI
+name: Setup Railway CLI Action
 description: Install Railway CLI.
 branding:
   icon: box
