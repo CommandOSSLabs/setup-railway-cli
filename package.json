@@ -1,5 +1,5 @@
 {
-  "name": "setup-railway-cli-action",
+  "name": "setup-railway-cli",
   "version": "1.0.0",
   "type": "module",
   "license": "Apache-2.0",

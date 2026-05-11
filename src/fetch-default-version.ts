@@ -10,7 +10,7 @@ type GitHubRelease = {
 function buildGitHubHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github+json',
-    'User-Agent': 'setup-railway-cli-action',
+    'User-Agent': 'setup-railway-cli',
   }
 
   const token = process.env.GITHUB_TOKEN
